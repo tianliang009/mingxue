@@ -1,0 +1,11 @@
+* {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-style: normal;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
