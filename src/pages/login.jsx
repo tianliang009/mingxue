@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Col, Row, Input, Button } from '@douyinfe/semi-ui';
-import { getUsers, getLogin, loginSelect, addLogin } from '../utils/userHelper';
+import { loginSelect, addLogin } from '../utils/userHelper';
 import '../style/login.less';
 const Login = () => {
     const [account, setAccount] = useState();
@@ -25,20 +25,31 @@ const Login = () => {
         }
     }
 
-    const signInOpe = async() => {
+    const signInOpe = () => {
         if(code === 'WL9HT') {
             let temp = {
                 account: signInAccount,
                 password: signInPassword,
                 id: Date.now()
             }
-            await addLogin(temp)
+            addLogin(temp).then((res) => {
+                console.log(res)
+                if(res) {
+                    loginChange()
+                }
+            })
+            // await addLogin(temp)
         } else {
             alert('邀请码错误,请联系管理员')
         }
     }
 
     const loginChange = () => {
+        setAccount('');
+        setPassword('');
+        setSignInAccount('');
+        setSignInPassword('');
+        setCode('');
         setSignBol(!signBol)
     }
 
@@ -61,7 +72,7 @@ const Login = () => {
                     {/* <Input placeholder='确认密码' onChange={(e) => {setSignInPas(e)}} mode="password" /> */}
                     <div>
                         <Button onClick={signInOpe} theme='solid' type='primary' style={{ marginRight: 8 }} >注册</Button>
-                        <Button onClick={loginChange} theme='solid' type='primary' style={{ marginRight: 8 }} >已有账号,返回登陆</Button>
+                        <Button onClick={loginChange} theme='solid' type='tertiary' style={{ marginRight: 8 }} >已有账号,返回登陆</Button>
                     </div>
                 </>
                 }

@@ -46,7 +46,7 @@ export const deleteUser = async (id) => {
 
 // 
 // 
-// 
+//
 
 export const getLogin = async() => {
     let { data: loginData, error } = await supabase
