@@ -19,7 +19,7 @@ const Login = () => {
             password: password
         }
         if(( await loginSelect(temp) ).length > 0 ){
-            navigate('/lol')
+            navigate('/')
         } else {
             console.log('错误')
         }

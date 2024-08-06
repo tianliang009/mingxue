@@ -6,6 +6,7 @@ import '../../style/lol.less'
 
 const Lol = () => {
   const defaultStyle = {
+    // height: "calc(100vh-60px)",
     height: "100vh",
     width: "100vw",
     backgroundColor: "transparent",
@@ -72,11 +73,11 @@ const Lol = () => {
   }, []);
   return (
     <>
-      <div
+      {/* <div
         ref={containerRef}
         id="container"
         style={{ ...defaultStyle }}
-      />
+      /> */}
     </>
   );
 }
