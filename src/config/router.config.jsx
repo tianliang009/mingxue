@@ -7,6 +7,9 @@ const routes = [
     }, {
         path: '*',
         element: lazyLoad(() => import('../components/NotFond'))
+    }, {
+        path: 'lol',
+        element: lazyLoad(() => import('../pages/lol/index'))
     }
 ]
 export default routes;

@@ -1,0 +1,18 @@
+.progress-container {
+  position: relative;
+  width: 100%;
+}
+.model-viewer {
+  position: relative;
+  background: transparent;
+}
+.progress-bar {
+  border: 1px solid #fff;
+  background-color: #666;
+  width: 100%;
+}
+.progress-percent {
+  background-color: aqua;
+  height: 100%;
+  transform: width 100ms ease;
+}
