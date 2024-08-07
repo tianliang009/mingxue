@@ -1,60 +1,79 @@
-import { Nav } from '@douyinfe/semi-ui';
-// import { IconSemiLogo } from '@douyinfe/semi-icons';
-import { IconDescriptions, IconTree, IconAvatar } from '@douyinfe/semi-icons-lab';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Nav, Avatar } from '@douyinfe/semi-ui';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
+import routerJson from '../router/router';
+import { Sortable } from '@douyinfe/semi-ui/lib/es/_sortable';
+import level from '../router/level';
 
-const Navbar = () => {
-    const [navHeight, setNavHei ] = useState()
-    const containerRef = useRef(null);
+const Navbar = (props) => {
+    const [navHeight, setNavHei ] = useState(0)
+    let pathName = window.location.pathname 
+    if(pathName[0] === '/' && level === 1){
+        pathName = pathName.slice(1);
+    }
+    const [selectedKeys, setSelectedKeys] = useState([pathName||'']);
     const navigate = useNavigate();
-    // const switchMode = (data) => {
-    //     if(data.text === "theme") {
-    //         const body = document.body;
-    //         if (body.hasAttribute('theme-mode')) {
-    //             body.removeAttribute('theme-mode');
-    //         } else {
-    //             body.setAttribute('theme-mode', 'dark');
-    //         }
-    //     }
-    // };
-    const items = [
-        { itemKey: '/data', text: '数据管理', icon: '📊' },
-        { itemKey: '/user', text: '用户管理', icon: <IconAvatar /> },
-        { itemKey: '/activity', text: '活动管理', icon: <IconDescriptions /> },
-        {
-            itemKey: '/com',
-            text: '任务平台',
-            icon: <IconTree />,
-            items: [
-                { itemKey: '/companyTasks', text: '公司任务', icon: '💼' },
-                { itemKey: '/userTasks', text: '用户任务查询', icon: '🏠' },
-            ],
-        },
-        { itemKey: '/greenSock', text: 'GreenSock', icon: '🍀' },
-        { itemKey: '/imitateApple', text: 'Video', icon: '🧃' },
-        { itemKey: '/sockPage', text: '视觉', icon: '🍎' },
-        // { itemKey: "/theme", text: '切换主题', icon: '🌗' },
-    ]
+    const onSelect = data => {
+        setSelectedKeys([...data.selectedKeys]);
+        props.onParentMethod(data.itemKey);
+        navigate(data.itemKey)
+    };
+    const onOpenChange = data => {
+        console.log('trigger onOpenChange: ', data);
+        setOpenKeys([...data.openKeys]);
+    };
+    const onCollapseChange = isCollapsed => {
+        setIsCollapsed(isCollapsed);
+    };
+    let json = []
+    for(let i=0; i<routerJson.length; i++){
+        let obj = new Object();
+        obj.itemKey = '/' + routerJson[i].path;
+        obj.text = routerJson[i].text;
+        obj.icon = routerJson[i].icon;
+        if(routerJson[i].items != undefined) {
+            obj.items = routerJson[i].items
+        }
+        json.push(obj)
+    }
+    const items = useMemo(() => json, []);
 
     const goRoute = (e) => {
         navigate(e)
     }
 
     useEffect(() => {
+        const body = document.body;
         setNavHei(window.innerHeight)
     }, []);
 
 
     return (
         <Nav
-            bodyStyle={{ height: navHeight - 76 }}
-            items={ items }
-            footer={{
-                collapseButton: true,
-            }}
-            onSelect={data => goRoute(data.itemKey)}
-            // onClick={switchMode}
+            // isCollapsed={isCollapsed}
+            // openKeys={openKeys}
+            selectedKeys={selectedKeys}
+            bodyStyle={{ height: '100%' }}
+            items={items}
+            // header={
+            //     <>
+            //         <div className='user_info'>
+            //             <Avatar size="small" color='light-blue' style={{ margin: 4 }}>田亮</Avatar>
+            //             <div className='avatar_font'>
+            //                 <p>166****4141</p>
+            //                 <p>企业用户</p>
+            //             </div>
+            //         </div>
+            //         <p>灵感值: 18304</p>
+            //         <p>会员有效期：2025.11.22</p>
+            //     </>
+            // }
+            // footer={{
+            //     collapseButton: true
+            // }}
+            // onOpenChange={onOpenChange}
+            onCollapseChange={onCollapseChange}
+            onSelect={onSelect}
         />
     );
 }
