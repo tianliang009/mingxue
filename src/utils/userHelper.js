@@ -1,5 +1,5 @@
 import supabase from "./supabase"
-import { fa, faker } from '@faker-js/faker'
+import { faker } from '@faker-js/faker'
 
 export const getFakeUser = () => {
     return {
@@ -74,12 +74,35 @@ export const loginSelect = async(temp) => {
     return(loginData)
 }
 // 数据
+export const getUserData = async(name, account, startTime, endTime, status, accumulateMin, accumulateMax) => {
+    let { data: loginData, error } = await supabase
+        .from('user_data')
+        .select(`*,user_money!inner(*)`)
+        .like("name", `%${name || ''}%`)
+        .like("account", `%${account || ''}%`)
+        .gt("date", startTime || "0001-01-01 00:00:00")
+        .lt("date", endTime || "9999-12-31 23:59:59")
+        .like("status", `%${status || ''}%`)
+        .gt("user_money.accumulate", accumulateMin || 0)
+        .lt("user_money.accumulate", accumulateMax || 0)
+
+
+        // .gt("user_money.balance", 5000)
+        // .eq("status", status||'')
+    return (loginData);
+}
 export const addUserData = async(user) => {
     const { data, error } = await supabase
-        .from('personalUser_data')
+        .from('user_data')
         .insert([user])
         .select()
     // console.log(data,'---',error)
     return data;
 }
-// 茉莉绿芽 
+export const addUserMoney = async(user) => {
+    const { data, error } = await supabase
+        .from('user_money')
+        .insert([user])
+        .select()
+    return data;
+}
