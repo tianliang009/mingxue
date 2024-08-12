@@ -14,41 +14,6 @@ export const getFakeUser = () => {
         // role: faker.person.jobTitle(),
     }
 }
-// export const getUsers = async() => {
-//     let { data: user, error } = await supabase
-//     .from('user')
-//     .select('*')
-
-//     return user;
-// }
-
-// export const insertUser = async(user) => {
-//     const { data, error } = await supabase
-//     .from('user')
-//     .insert([user])
-//     .select()
-
-//     return data;
-// }
-
-// export const updateUser = async (newUser) => {
-//     await supabase
-//     .from('user')
-//     .update({ ...newUser })
-//     .eq('id', newUser.id)
-//     .select()
-// }
-
-// export const deleteUser = async (id) => {
-//     await supabase
-//     .from('user')
-//     .delete()
-//     .eq('id', id)
-// }
-
-// 
-// 
-//
 
 // 登录
 export const getLogin = async() => {
@@ -74,8 +39,11 @@ export const loginSelect = async(temp) => {
     return(loginData)
 }
 // 数据
-export const getUserData = async(name, account, startTime, endTime, status, accumulateMin, accumulateMax) => {
-    let { data: loginData, error } = await supabase
+export const getUserData = async(name, account, startTime, 
+    endTime, status, accumulateMin, accumulateMax, balanceMin, balanceMax) => {
+    let maxNum = 9223372036854775807n;
+    let minNum = -9223372036854775808n;
+    let { data: userData, error } = await supabase
         .from('user_data')
         .select(`*,user_money!inner(*)`)
         .like("name", `%${name || ''}%`)
@@ -83,13 +51,22 @@ export const getUserData = async(name, account, startTime, endTime, status, accu
         .gt("date", startTime || "0001-01-01 00:00:00")
         .lt("date", endTime || "9999-12-31 23:59:59")
         .like("status", `%${status || ''}%`)
-        .gt("user_money.accumulate", accumulateMin || 0)
-        .lt("user_money.accumulate", accumulateMax || 0)
-
+        .gt("user_money.accumulate", accumulateMin || minNum)
+        .lt("user_money.accumulate", accumulateMax || maxNum)
+        .gt("user_money.balance", balanceMin || minNum)
+        .lt("user_money.balance", balanceMax || maxNum)
 
         // .gt("user_money.balance", 5000)
         // .eq("status", status||'')
-    return (loginData);
+    return (userData);
+}
+export const updateUserData = async(item) => {
+    let { data: updateData, error } = await supabase
+        .from('user_data')
+        .update({'status': item.status})
+        .eq('id', item.id)
+        // .select()
+    return updateData;
 }
 export const addUserData = async(user) => {
     const { data, error } = await supabase
