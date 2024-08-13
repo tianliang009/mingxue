@@ -90,3 +90,43 @@ export const addUserMoney = async(user) => {
         .select()
     return data;
 }
+// 数据_详情
+export const addDetailData = async(user,str) => {
+    const { data, error } = await supabase
+        .from(str)
+        .insert([user])
+        .select()
+    return data;
+}
+export const getDetailTotal = async(account, fromStr, eqStr) => {
+    const { count, error } = await supabase
+        .from(fromStr)
+        .select('*', { count: 'exact', head: true })
+        .eq(eqStr, account)
+    return count;
+}
+export const getDetailDatas = async(account, current, fromStr, eqStr) => {
+    let { data: detailData, error } = await supabase
+        .from(fromStr)
+        .select(`*`)
+        .eq(eqStr, account)
+        .range((current - 1) * 5, (current * 5) - 1)
+    return (detailData)
+}
+// export const getVouchers = async(account, current) => {
+//     let { data: vouchersData, error } = await supabase
+//         .from('vouchers')
+//         .select(`*`)
+//         .eq('vou_account', account)
+//         .range((current - 1) * 5, (current * 5) - 1)
+//     return (vouchersData)
+// }
+
+// export const getRecs = async(account, current) => {
+//     let { data: vouchersData, error } = await supabase
+//         .from('recharge')
+//         .select(`*`)
+//         .eq('rec_account', account)
+//         .range((current - 1) * 5, (current * 5) - 1)
+//     return (vouchersData)
+// }

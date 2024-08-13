@@ -1,10 +1,24 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Table, Avatar, Input, Space } from '@douyinfe/semi-ui';
-import * as dateFns from 'date-fns';
-import { useParams } from "react-router-dom";
+import { Table } from '@douyinfe/semi-ui';
+// import * as dateFns from 'date-fns';
+// import { useParams } from "react-router-dom";
 import tableData from '../../../../utils/temporary';
+import { useLocation } from 'react-router-dom'
+import { getDetailTotal, getDetailDatas } from '../../../../utils/userHelper';
+import { formatDate } from '../../../../utils/setTime';
 const UserDetail = () => {
-    const { id } = useParams();
+    // console.log(useLocation()) // route数据
+    let propsData = useLocation()
+    // const { id } = useParams();
+    // 代金券记录
+    const [vouchersData, setVouchersData] = useState();
+    const [vouTotal, setVouTotal] = useState();
+    const [vouCurrentPage, setVouCurrentPage] = useState(1);
+    // 
+    const [recData, setRecData] = useState();
+    const [recTotal, setRecTotal] = useState();
+    const [recCurrentPage, setRecCurrentPage] = useState(1);
+    // 
     const columnsFir = [
         {
             title: '序号',
@@ -80,69 +94,79 @@ const UserDetail = () => {
             dataIndex: 'outputToken',
         }
     ];
-    const columnsThi = [
+    const rechargeCol = [
         {
             title: '序号',
-            dataIndex: 'num',
-            width: 60
+            dataIndex: 'id',
         }, {
             title: '充值时间',
-            dataIndex: 'date',
-            width: 140
+            dataIndex: 'time',
+            render: (item) => {
+                return <>{formatDate(item)}</>
+            }
         }, {
             title: '充值金额(元)',
-            dataIndex: 'accumulate',
+            dataIndex: 'money',
         }, {
             title: '充值类型',
-            dataIndex: 'accumulateType',
+            dataIndex: 'recharge_type',
+            render: (item) => {
+                return <>{item == '0' ? '预存费用':'实际支付'}</>
+            }
         }, {
             title: '支付方式',
-            dataIndex: 'payWay',
+            dataIndex: 'way',
+            render: (item) => {
+                return <>{item == '0' ? '灵感值':'其他支付'}</>
+            }
         }, {
             title: '支付状态',
-            dataIndex: 'payStatus',
+            dataIndex: 'status',
+            render: (item) => {
+                return <>{item == '0' ? '已支付':'待支付'}</>
+            }
         }, {
             title: '支付结果',
-            dataIndex: 'payResult',
+            dataIndex: 'result',
+            render: (item) => {
+                return <>{item == '0' ? '成功':'失败'}</>
+            }
         }
     ];
-    const columnsFou = [
+    const vouchersCol = [
         {
             title: '序号',
-            dataIndex: 'num',
-            width: 60
+            dataIndex: 'id',
         }, {
             title: '代金券类型',
-            dataIndex: 'voucherType',
+            dataIndex: 'type',
+            render: (item) => {
+                return <>{item == '0' ? '注册赠送':'业务赠送'}</>
+            }
         }, {
             title: '代金券金额（元）',
-            dataIndex: 'voucherNum',
+            dataIndex: 'money',
         }, {
             title: '代金券状态',
-            dataIndex: 'voucherStatus',
+            dataIndex: 'status',
+            render: (item) => {
+                return <>{item == '0' ? '已生效':'未生效'}</>
+            }
         }, {
             title: '生效时间',
-            dataIndex: 'date',
+            dataIndex: 'time',
+            render: (item) => {
+                return <>{formatDate(item)}</>
+            }
         }, {
             title: '有效期',
-            render: () => {
-                return <>
-                    2024-08-25  14:00:15
-                </>
+            dataIndex: 'effective',
+            render: (item) => {
+                return <>{formatDate(item)}</>
             }
         }, {
             title: '已消耗金额（元）',
-            dataIndex: 'consumeToken',
-        }, {
-            title: '操作',
-            width: 200,
-            render: () => {
-                return <div className='tabOpe'>
-                    <p>详情</p>
-                    <p>编辑</p>
-                    <p>删除</p>
-                </div>;
-            }
+            dataIndex: 'consume_money',
         }
     ];
     const pagination = useMemo(
@@ -151,6 +175,50 @@ const UserDetail = () => {
         }),
         []
     );
+    // 代金劵记录
+    // const getVoucherData = async(page) =>{
+    //     // let data = await getVouchers(propsData.state.account, page||1)
+    //     let data = await getDetailDatas(propsData.state.account, page||1, 'vouchers', 'vou_account')
+    //     setVouchersData(data)
+    //     let total = await getDetailTotal(propsData.state.account, 'vouchers', 'vou_account')
+    //     setVouTotal(total)
+    // }
+    // const handleVouChange = (page) => {
+    //     setVouchersData([])
+    //     setVouCurrentPage(page)
+    //     getVoucherData(page)
+    // }
+    // recharge vouchers
+    // const getRechargeData = async(page) => {
+    //     // let data = await getRecs(propsData.state.account, page||1)
+    //     let data = await getDetailDatas(propsData.state.account, page||1, 'recharge', 'rec_account')
+    //     setRecData(data)
+    //     let total = await getDetailTotal(propsData.state.account, 'recharge', 'rec_account')
+    //     setRecTotal(total)
+    // }
+    // const handleRecChange = (page) => {
+    //     setRecData([])
+    //     setRecCurrentPage(page)
+    //     getRechargeData(page)
+    // }
+    // 
+    const handleChange = async(page, str) => {
+        // 根据所需字段切
+        let eqStr = (str == 'vouchers') ? 'vou_account' : 'rec_account'
+        let total = await getDetailTotal(propsData.state.account, str, eqStr)
+        let data = await getDetailDatas(propsData.state.account, page||1, str, eqStr)
+        str == 'vouchers' ? 
+        (setVouCurrentPage(page), setVouchersData(data), setVouTotal(total))
+         : 
+        (setRecCurrentPage(page), setRecData(data), setRecTotal(total))
+    }
+    // 
+    useEffect(() => {
+        handleChange(1, 'vouchers')
+        handleChange(1, 'recharge')
+        // getVoucherData()
+        // getRechargeData()
+    }, [])
     return (
         <>
             <div style={{display:'flex'}}>
@@ -216,9 +284,11 @@ const UserDetail = () => {
                 </div>
             </div>
             <h3 style={{marginBottom: '12px', marginTop: '36px'}}>代金券记录</h3>
-            <Table id='tabeller' columns={columnsFou} dataSource={tableData} pagination={pagination} /> 
+            <Table id='tabeller' columns={vouchersCol} dataSource={vouchersData} 
+                pagination={{currentPage: vouCurrentPage, pageSize: 5, total: vouTotal, onPageChange: (page) => (setVouchersData([]), handleChange(page, 'vouchers')) }} /> 
             <h3 style={{marginBottom: '12px', marginTop: '36px'}}>充值记录</h3>
-            <Table id='tabeller' columns={columnsThi} dataSource={tableData} pagination={pagination} /> 
+            <Table id='tabeller' columns={rechargeCol} dataSource={recData} 
+                pagination={{currentPage: recCurrentPage, pageSize: 5, total: recTotal, onPageChange: (page) => (setRecData([]), handleChange(page, 'recharge')) }} /> 
             <h3 style={{marginBottom: '12px', marginTop: '36px'}}>计费明细</h3>
             <Table id='tabeller' columns={columnsSec} dataSource={tableData} pagination={pagination} /> 
             <h3 style={{marginBottom: '12px', marginTop: '36px'}}>开票记录</h3>
