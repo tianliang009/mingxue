@@ -39,8 +39,8 @@ export const loginSelect = async(temp) => {
     return(loginData)
 }
 // 数据
-export const getUserData = async(name, account, startTime, 
-    endTime, status, accumulateMin, accumulateMax, balanceMin, balanceMax) => {
+export const getUserData = async(current, name, account, startTime, endTime, status, 
+    accumulateMin, accumulateMax, balanceMin, balanceMax) => {
     let maxNum = 9223372036854775807n;
     let minNum = -9223372036854775808n;
     let { data: userData, error } = await supabase
@@ -55,10 +55,17 @@ export const getUserData = async(name, account, startTime,
         .lt("user_money.accumulate", accumulateMax || maxNum)
         .gt("user_money.balance", balanceMin || minNum)
         .lt("user_money.balance", balanceMax || maxNum)
+        .range((current - 1) * 6, (current * 6) - 1)
 
         // .gt("user_money.balance", 5000)
         // .eq("status", status||'')
     return (userData);
+}
+export const getUserDataTotal = async() => {
+    const { count, error } = await supabase
+        .from('user_data')
+        .select('*', { count: 'exact', head: true })
+    return count;
 }
 export const updateUserData = async(item) => {
     let { data: updateData, error } = await supabase

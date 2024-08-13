@@ -7,10 +7,12 @@ import { formatDate, timestampConversion } from '../../../../utils/setTime';
 // import tableData from '../../../../utils/temporary';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { getUserData, addUserMoney, updateUserData } from '../../../../utils/userHelper';
+import { getUserData, addUserMoney, updateUserData, getUserDataTotal } from '../../../../utils/userHelper';
 import { table } from '@douyinfe/semi-ui/lib/es/markdownRender/components';
 const PersonalUser = () => {
     const navigate = useNavigate();
+    const [total, setTotal] = useState();
+    const [currentPage, setCurrentPage] = useState(1);
     const [name, setName] = useState();
     const [account, setAccount] = useState();
     const [startTime, setStartTime] = useState();
@@ -95,16 +97,16 @@ const PersonalUser = () => {
             }
         }
     ];
-    const pagination = useMemo(
-        () => ({
-            pageSize: 6,
-        }),
-        []
-    );
+    // const pagination = useMemo(
+    //     () => ({
+    //         pageSize: 6,
+    //     }),
+    //     []
+    // );
     const searchOpe = async() => {
         setOpe([])
         // console.log(accumulateMax,'---',accumulateMin)
-        let data = await getUserData(name, account, startTime, endTime, status, 
+        let data = await getUserData(currentPage, name, account, startTime, endTime, status, 
             accumulateMin, accumulateMax, balanceMin, balanceMax)
         setOpe(data)
     }
@@ -126,8 +128,6 @@ const PersonalUser = () => {
         let endStr = dateString? dateString+' 23:59:59' : "9999-12-31 23:59:59";
         setEndTime(endStr)
         setStartTime(startStr)
-        // let data = await getUserData('', '', `${dateString} 00:00:00`)
-        // setOpe(data)
     }
     const setValue = (e) => {
         setStatus(e)
@@ -141,8 +141,10 @@ const PersonalUser = () => {
         setTableData([])
         getData();
     }
-    const getData = async() => {
-        let data = await getUserData()
+    const getData = async(current) => {
+        let count = await getUserDataTotal()
+        setTotal(count)
+        let data = await getUserData(current || 1)
         setOpe(data)
         // row假数据
         // for(let i=0;i<data.length;i++) {
@@ -161,7 +163,6 @@ const PersonalUser = () => {
         // }
     }
     const setOpe = (data) => {
-        console.log(data)
         for(let i=0;i<data.length;i++) {
             data[i].accumulate = data[i].user_money.accumulate
             data[i].balance = data[i].user_money.balance
@@ -180,6 +181,11 @@ const PersonalUser = () => {
         setBalanceStatus(e)
         setBalanceMax(balanceList[e].maxNum);
         setBalanceMin(balanceList[e].minNum);
+    }
+    const handlePageChange = (page) => {
+        setCurrentPage(page)
+        setTableData([])
+        getData(page)
     }
     useEffect(() => {
         getData()
@@ -208,7 +214,7 @@ const PersonalUser = () => {
                     </Button>
                 </div>
             </Card>
-            <Table id='tabeller' columns={columns} dataSource={tableData} pagination={pagination} />  
+            <Table id='tabeller' columns={columns} dataSource={tableData} pagination={{currentPage: currentPage, pageSize: 6, total: total, onPageChange: handlePageChange,}} />  
         </>
     );
 };
