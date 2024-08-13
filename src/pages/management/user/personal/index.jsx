@@ -91,7 +91,7 @@ const PersonalUser = () => {
             width: 140,
             render: (item) => {
                 return <div className='tabOpe'>
-                    <p onClick={() => {navigate(`/user/detail/:${item.num}`)}}>详情</p>
+                    <p onClick={() => {navigate(`/user/detail/:${item.id}`)}}>详情</p>
                     <p onClick={() => {changeStatus(item)}}>{item.status === '0'?'启动':'停用'}</p>
                 </div>;
             }
@@ -146,6 +146,7 @@ const PersonalUser = () => {
         setTotal(count)
         let data = await getUserData(current || 1)
         setOpe(data)
+        // Math.floor(Math.random() * 51) + 50;
         // row假数据
         // for(let i=0;i<data.length;i++) {
         //     let temp = {
