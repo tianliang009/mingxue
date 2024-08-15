@@ -80,7 +80,8 @@ routes.push({
         path: 'enterpriseUser',
         element: lazyLoad(() => import('../pages/management/user/enterprise/index'))
         }, {
-        path: 'user/detail/:id',
+        // path: 'user/detail/:id',
+        path: 'user/detail/',
         element: lazyLoad(() => import('../pages/management/user/detail/index'))
         }, {
         path: 'manRechargeRecord',

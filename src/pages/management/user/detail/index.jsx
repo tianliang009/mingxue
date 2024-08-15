@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Table } from '@douyinfe/semi-ui';
+import { Table, Upload, Toast } from '@douyinfe/semi-ui';
 // import * as dateFns from 'date-fns';
 // import { useParams } from "react-router-dom";
 import tableData from '../../../../utils/temporary';
 import { useLocation } from 'react-router-dom'
 import { getDetailTotal, getDetailDatas } from '../../../../utils/userHelper';
 import { formatDate } from '../../../../utils/setTime';
+import supabase from '../../../../utils/supabase';
 const UserDetail = () => {
     // console.log(useLocation()) // route数据
     let propsData = useLocation()
@@ -19,79 +20,77 @@ const UserDetail = () => {
     const [recTotal, setRecTotal] = useState();
     const [recCurrentPage, setRecCurrentPage] = useState(1);
     // 
-    const columnsFir = [
+    const [chaData, setChaData] = useState();
+    const [chaTotal, setChaTotal] = useState();
+    const [chaCurrentPage, setChaCurrentPage] = useState(1);
+    // 
+    const [invData, setInvData] = useState();
+    const [invTotal, setInvTotal] = useState();
+    const [invCurrentPage, setInvCurrentPage] = useState(1);
+    // 
+    const invoicingCol = [
         {
             title: '序号',
-            dataIndex: 'num',
-            width: 60
+            dataIndex: 'id',
         }, {
             title: '申请时间',
-            dataIndex: 'date',
-            width: 140
-        }, {
-            title: '发票抬头',
-            render: () => {
-                return <div>
-                    长春工业大学计算机学院
-                </div>
+            dataIndex: 'time',
+            render: (item) => {
+                return <>{formatDate(item)}</>
             }
         }, {
+            title: '发票抬头',
+            dataIndex: 'title'
+        }, {
             title: '发票类型',
-            render: () => {
-                return <div>
-                    增值税专用发票
-                </div>
+            dataIndex: 'type',
+            render: (item) => {
+                return <>{item == '0' ? '增值税专用发票':'其他'}</>
             }
         }, {
             title: '开票金额(元)',
-            render: () => {
-                return <div>
-                    100
-                </div>
-            }
+            dataIndex: 'money'
         }, {
             title: '开票状态',
-            render: () => {
-                return <div>
-                    已开票
-                </div>
+            dataIndex: 'status',
+            render: (item) => {
+                return <>{item == '0' ? '已开票':'未开票'}</>
             }
         }, {
             title: '开票号',
-            render: () => {
-                return <div>
-                    24112000000065078333
-                </div>
-            }
+            dataIndex: 'ticket_num'
         }, {
             title: '操作',
-            width: 80,
-            render: () => {
+            render: (item) => {
                 return <div className='tabOpe'>
-                    <p>下载</p>
+                    <a href={item.img_url} target="_blank" download={true}>下载</a>
+                    {/* <p onClick={() => downLoadFile(item.img_url)}>下载</p> */}
                 </div>;
             }
         }
     ];
-    const columnsSec = [
+    const chargingCol = [
         {
             title: '序号',
-            dataIndex: 'num',
+            dataIndex: 'id',
         }, {
             title: '消费时间',
-            dataIndex: 'date',
+            dataIndex: 'time',
+            render: (item) => {
+                return <>{formatDate(item)}</>
+            }
         }, {
             title: '消费金额（元）',
-            dataIndex: 'consumptionAmount',
+            dataIndex: 'money',
         }, {
             title: '消耗（（k/tokens）',
-            dataIndex: 'consumeToken',
+            dataIndex: 'consume_t',
         }, {
             title: '输入（k/tokens）',
-            dataIndex: 'inputToken',
+            dataIndex: 'input_t',
         }, {
             title: '输出（k/tokens）',
-            dataIndex: 'outputToken',
+            dataIndex: 'output_t',
         }
     ];
     const rechargeCol = [
@@ -169,55 +168,33 @@ const UserDetail = () => {
             dataIndex: 'consume_money',
         }
     ];
-    const pagination = useMemo(
-        () => ({
-            pageSize: 6,
-        }),
-        []
-    );
-    // 代金劵记录
-    // const getVoucherData = async(page) =>{
-    //     // let data = await getVouchers(propsData.state.account, page||1)
-    //     let data = await getDetailDatas(propsData.state.account, page||1, 'vouchers', 'vou_account')
-    //     setVouchersData(data)
-    //     let total = await getDetailTotal(propsData.state.account, 'vouchers', 'vou_account')
-    //     setVouTotal(total)
-    // }
-    // const handleVouChange = (page) => {
-    //     setVouchersData([])
-    //     setVouCurrentPage(page)
-    //     getVoucherData(page)
-    // }
-    // recharge vouchers
-    // const getRechargeData = async(page) => {
-    //     // let data = await getRecs(propsData.state.account, page||1)
-    //     let data = await getDetailDatas(propsData.state.account, page||1, 'recharge', 'rec_account')
-    //     setRecData(data)
-    //     let total = await getDetailTotal(propsData.state.account, 'recharge', 'rec_account')
-    //     setRecTotal(total)
-    // }
-    // const handleRecChange = (page) => {
-    //     setRecData([])
-    //     setRecCurrentPage(page)
-    //     getRechargeData(page)
-    // }
-    // 
+    const downLoadFile = async(str) => {
+        // const { data, error } = await supabase
+        //     .storage
+        //     .from('user_image')
+        //     .download('13114715217/l_1.jpg')
+    }
     const handleChange = async(page, str) => {
         // 根据所需字段切
-        let eqStr = (str == 'vouchers') ? 'vou_account' : 'rec_account'
+        // invoicing
+        let eqStr = (str == 'vouchers') ? 'vou_account' : ((str == 'recharge') ? 'rec_account' : ((str == 'charging') ? 'cha_account' : 'inv_account'))
         let total = await getDetailTotal(propsData.state.account, str, eqStr)
         let data = await getDetailDatas(propsData.state.account, page||1, str, eqStr)
         str == 'vouchers' ? 
         (setVouCurrentPage(page), setVouchersData(data), setVouTotal(total))
          : 
-        (setRecCurrentPage(page), setRecData(data), setRecTotal(total))
+            ( str == 'recharge' ? ((setRecCurrentPage(page), setRecData(data), setRecTotal(total))) 
+            : 
+            ( str == 'charging' ? ((setChaCurrentPage(page), setChaData(data), setChaTotal(total))) 
+            : (setInvCurrentPage(page), setInvData(data), setInvTotal(total)) ) )
+
     }
     // 
     useEffect(() => {
         handleChange(1, 'vouchers')
         handleChange(1, 'recharge')
-        // getVoucherData()
-        // getRechargeData()
+        handleChange(1, 'charging')
+        handleChange(1, 'invoicing')
     }, [])
     return (
         <>
@@ -283,6 +260,23 @@ const UserDetail = () => {
                     </div>
                 </div>
             </div>
+            {/* <Upload 
+            fileName='file' uploadTrigger='custom'
+            action={""} showUploadList={false}
+            accept='image/*' onError={() => Toast.error("上传失败")}
+            onFileChange={async (files) => {
+                const avatarFile = files[0];
+                const fileName = avatarFile.name;
+                const { data, error } = await supabase
+                .storage
+                .from('user_image')
+                .upload(`${propsData.state.account}/${fileName}`, avatarFile, {
+                    cacheControl: '3600',
+                    upsert: false
+                })
+                console.log(data,'---',error)
+            }}
+            >test上传</Upload> */}
             <h3 style={{marginBottom: '12px', marginTop: '36px'}}>代金券记录</h3>
             <Table id='tabeller' columns={vouchersCol} dataSource={vouchersData} 
                 pagination={{currentPage: vouCurrentPage, pageSize: 5, total: vouTotal, onPageChange: (page) => (setVouchersData([]), handleChange(page, 'vouchers')) }} /> 
@@ -290,9 +284,11 @@ const UserDetail = () => {
             <Table id='tabeller' columns={rechargeCol} dataSource={recData} 
                 pagination={{currentPage: recCurrentPage, pageSize: 5, total: recTotal, onPageChange: (page) => (setRecData([]), handleChange(page, 'recharge')) }} /> 
             <h3 style={{marginBottom: '12px', marginTop: '36px'}}>计费明细</h3>
-            <Table id='tabeller' columns={columnsSec} dataSource={tableData} pagination={pagination} /> 
+            <Table id='tabeller' columns={chargingCol} dataSource={chaData} 
+                pagination={{currentPage: chaCurrentPage, pageSize: 5, total: chaTotal, onPageChange: (page) => (setChaData([]), handleChange(page, 'charging')) }}  /> 
             <h3 style={{marginBottom: '12px', marginTop: '36px'}}>开票记录</h3>
-            <Table id='tabeller' columns={columnsFir} dataSource={tableData} pagination={pagination} /> 
+            <Table id='tabeller' columns={invoicingCol} dataSource={invData} 
+                pagination={{currentPage: invCurrentPage, pageSize: 5, total: invTotal, onPageChange: (page) => (setInvData([]), handleChange(page, 'invoicing')) }} /> 
         </>
     )
 }

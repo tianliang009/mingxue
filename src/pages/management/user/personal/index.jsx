@@ -7,7 +7,8 @@ import { formatDate, timestampConversion } from '../../../../utils/setTime';
 // import tableData from '../../../../utils/temporary';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { getUserData, addUserMoney, updateUserData, getUserDataTotal } from '../../../../utils/userHelper';
+import { faker } from '@faker-js/faker'
+import { getUserData, updateUserData, getUserDataTotal, addDetailData } from '../../../../utils/userHelper';
 import { table } from '@douyinfe/semi-ui/lib/es/markdownRender/components';
 const PersonalUser = () => {
     const navigate = useNavigate();
@@ -91,7 +92,8 @@ const PersonalUser = () => {
             width: 140,
             render: (item) => {
                 return <div className='tabOpe'>
-                    <p onClick={() => {navigate(`/user/detail/:${item.id}`)}}>详情</p>
+                    <p onClick={() => {navigate('/user/detail', { state: {id: item.id, account: item.account} })}}>详情</p>
+                    {/* <p onClick={() => {navigate(`/user/detail/:${item.id}`)}}>详情</p> */}
                     <p onClick={() => {changeStatus(item)}}>{item.status === '0'?'启动':'停用'}</p>
                 </div>;
             }
@@ -146,6 +148,73 @@ const PersonalUser = () => {
         setTotal(count)
         let data = await getUserData(current || 1)
         setOpe(data)
+        // 详情页的数据
+        // for(let i=0; i<10; i++) {
+        //     let temp = {
+        //         id: Math.floor(Math.random() * 10000) + 10000,
+        //         vou_account: data[3].account,
+        //         type: Math.floor(Math.random() * 2),
+        //         status: Math.floor(Math.random() * 2),
+        //         money: Math.floor(Math.random() * 51) + 50,
+        //         name: faker.company.bs(),
+        //         donor: faker.internet.userName(),
+        //     }
+        //     console.log(temp)
+        //     addDetailData(temp).then((res) => {
+        //         console.log(res)
+        //     })
+        // }
+        // for(let i=0; i<10; i++) {
+            // recharge vouchers
+            // 代金券记录
+            // let temp = {
+            //     id: Math.floor(Math.random() * 10000) + 10000,
+            //     vou_account: data[2].account,
+            //     type: Math.floor(Math.random() * 2),
+            //     status: Math.floor(Math.random() * 2),
+            //     money: Math.floor(Math.random() * 51) + 50,
+            //     name: faker.company.bs(),
+            //     donor: faker.internet.userName(),
+            //     consume_money: Math.floor(Math.random() * 10) + 10,
+            // }
+            // 充值记录
+            // let temp = {
+            //     id: Math.floor(Math.random() * 10000) + 10000,
+            //     rec_account: data[0].account,
+            //     recharge_type: Math.floor(Math.random() * 2),
+            //     way: Math.floor(Math.random() * 2),
+            //     status: Math.floor(Math.random() * 2),
+            //     result: Math.floor(Math.random() * 2),
+            //     money: Math.floor(Math.random() * 51) + 50,
+            //     time: '2024-07-31T06:14:10+00:00'
+            // }
+            // 计费明细
+            // let temp = {
+            //     id: Math.floor(Math.random() * 10000) + 10000,
+            //     cha_account: data[0].account,
+            //     time: '2024-05-23T06:14:10+00:00',
+            //     money: Math.floor(Math.random() * 51) + 50,
+            //     consume_t: Math.floor(Math.random() * 100) + 100,
+            //     input_t: Math.floor(Math.random() * 100),
+            //     output_t: Math.floor(Math.random() * 100),
+            // }
+            // 开票记录 // Invoicing
+            // let temp = {
+            //     id: Math.floor(Math.random() * 10000) + 10000,
+            //     inv_account: data[0].account,
+            //     time: '2024-05-23T06:14:10+00:00',
+            //     title: '长春工业大学计算机学院',
+            //     type: Math.floor(Math.random() * 2),
+            //     money: 742,
+            //     status: Math.floor(Math.random() * 2),
+            //     ticket_num: '24112000000065078333',
+            //     img_url: 'https://lvslrgbhijxmscggmriy.supabase.co/storage/v1/object/sign/user_image/13114715217/l_1.jpg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJ1c2VyX2ltYWdlLzEzMTE0NzE1MjE3L2xfMS5qcGciLCJpYXQiOjE3MjM2ODgxODcsImV4cCI6MTc1NTIyNDE4N30.ArxnxdXuzU4Iqr26eN1j8cNigszitNH46vSNoMc1OK8&t=2024-08-15T02%3A16%3A27.716Z'
+            // }
+            // addDetailData(temp, 'invoicing').then((res) => {
+            //     console.log(res)
+            // })
+        // }
+
         // Math.floor(Math.random() * 51) + 50;
         // row假数据
         // for(let i=0;i<data.length;i++) {
