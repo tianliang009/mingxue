@@ -168,12 +168,12 @@ const UserDetail = () => {
             dataIndex: 'consume_money',
         }
     ];
-    const downLoadFile = async(str) => {
-        // const { data, error } = await supabase
-        //     .storage
-        //     .from('user_image')
-        //     .download('13114715217/l_1.jpg')
-    }
+    // const downLoadFile = async(str) => {
+    //     // const { data, error } = await supabase
+    //     //     .storage
+    //     //     .from('user_image')
+    //     //     .download('13114715217/l_1.jpg')
+    // }
     const handleChange = async(page, str) => {
         // 根据所需字段切
         // invoicing

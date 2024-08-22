@@ -1,9 +1,11 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useEffect} from 'react';
 import { Table, Card, Input, DatePicker, Select, Button } from '@douyinfe/semi-ui';
 import { IconSearch, IconRefresh } from '@douyinfe/semi-icons';
 import { useState } from 'react';
 import timestampConversion from '../../../../utils/time';
 import tableData from '../../../../utils/temporary';
+import { getDetailTotal, getDetailDatas } from '../../../../utils/userHelper';
+import { formatDate } from '../../../../utils/setTime';
 const RechargeRecord = () => {
     const [name, setName] = useState();
     const [account, setAccount] = useState();
@@ -22,39 +24,59 @@ const RechargeRecord = () => {
         { value: '1', label: '成功' },
         { value: '2', label: '失败' },
     ]
+    // 
+    const [recData, setRecData] = useState();
+    const [recTotal, setRecTotal] = useState();
+    const [recCurrentPage, setRecCurrentPage] = useState(1);
+    // 
     const columns = [
         {
             title: '序号',
-            dataIndex: 'num',
-            width: 60
+            dataIndex: 'id',
         }, {
             title: '充值时间',
-            dataIndex: 'date',
-            width: 140
+            dataIndex: 'time',
+            render: (item) => {
+                return <>{formatDate(item)}</>
+            }
         }, {
             title: '企业/个人名称',
-            dataIndex: 'companyName',
+            dataIndex: 'name',
         }, {
             title: '账号',
-            dataIndex: 'account',
+            dataIndex: 'rec_account',
         }, {
             title: '所属类型',
-            dataIndex: 'affiliation',
+            render: (item) => {
+                return <>企业</>
+            }
         }, {
             title: '充值金额(元)',
-            dataIndex: 'accumulate',
+            dataIndex: 'money',
         }, {
             title: '充值类型',
-            dataIndex: 'accumulateType',
+            dataIndex: 'recharge_type',
+            render: (item) => {
+                return <>{item == '0' ? '预存费用':'实际支付'}</>
+            }
         }, {
             title: '支付方式',
-            dataIndex: 'payWay',
+            dataIndex: 'way',
+            render: (item) => {
+                return <>{item == '0' ? '灵感值':'其他支付'}</>
+            }
         }, {
             title: '支付状态',
-            dataIndex: 'payStatus',
+            dataIndex: 'status',
+            render: (item) => {
+                return <>{item == '0' ? '已支付':'待支付'}</>
+            }
         }, {
             title: '支付结果',
-            dataIndex: 'payResult',
+            dataIndex: 'result',
+            render: (item) => {
+                return <>{item == '0' ? '成功':'失败'}</>
+            }
         }
     ];
     const pagination = useMemo(
@@ -76,6 +98,17 @@ const RechargeRecord = () => {
     const setValue = (e) => {
         console.log(e)
     }
+    const getTableData = async(page) => {
+        // 13114715217 recharge rec_account
+        let total = await getDetailTotal('0', 'recharge', 'spe')
+        let data = await getDetailDatas('0', page||1, 'recharge', 'spe')
+        setRecData(data)
+        setRecTotal(total)
+        setRecCurrentPage(page)
+    }
+    useEffect(() => {
+        getTableData()
+    }, [])
     return (
         <>
             <Card style={{marginBottom: '24px'}} className='search_box'>
@@ -100,7 +133,8 @@ const RechargeRecord = () => {
                     </Button>
                 </div>
             </Card>
-            <Table id='tabeller' columns={columns} dataSource={tableData} pagination={pagination} />  
+            <Table id='tabeller' columns={columns} dataSource={recData} 
+                pagination={{currentPage: recCurrentPage, pageSize: 5, total: recTotal, onPageChange: (page) => (setRecData([]), getTableData(page)) }} />  
         </>
     );
 };

@@ -54,8 +54,9 @@ const Login = () => {
     }
 
     return (
-        <div className='login_box'>
+        <div className='login'>
             <div className='login_con'>
+                <img src="/src/assets/logo.png" className='login_logo' alt="" />
                 <p className='tit'>{signBol ? '登 陆':'注 册'}</p>
                 {signBol ? 
                 <>
@@ -76,6 +77,8 @@ const Login = () => {
                     </div>
                 </>
                 }
+            </div>
+            <div className='login_box'>
             </div>
         </div>
     );
