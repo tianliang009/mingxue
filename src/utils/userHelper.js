@@ -103,6 +103,7 @@ export const getDetailTotal = async(account, fromStr, eqStr) => {
         .from(fromStr)
         .select('*', { count: 'exact', head: true })
         .eq(eqStr, account)
+        // .eq(eqStr, account) || .eq(eqStr, account)
     return count;
 }
 export const getDetailDatas = async(account, current, fromStr, eqStr) => {
@@ -113,20 +114,3 @@ export const getDetailDatas = async(account, current, fromStr, eqStr) => {
         .range((current - 1) * 5, (current * 5) - 1)
     return (detailData)
 }
-// export const getVouchers = async(account, current) => {
-//     let { data: vouchersData, error } = await supabase
-//         .from('vouchers')
-//         .select(`*`)
-//         .eq('vou_account', account)
-//         .range((current - 1) * 5, (current * 5) - 1)
-//     return (vouchersData)
-// }
-
-// export const getRecs = async(account, current) => {
-//     let { data: vouchersData, error } = await supabase
-//         .from('recharge')
-//         .select(`*`)
-//         .eq('rec_account', account)
-//         .range((current - 1) * 5, (current * 5) - 1)
-//     return (vouchersData)
-// }
