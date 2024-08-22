@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Col, Row, Input, Button } from '@douyinfe/semi-ui';
+import { Col, Row, Input, Button, Toast } from '@douyinfe/semi-ui';
 import { loginSelect, addLogin } from '../utils/userHelper';
 import '../style/login.less';
 const Login = () => {
@@ -19,9 +19,9 @@ const Login = () => {
             password: password
         }
         if(( await loginSelect(temp) ).length > 0 ){
-            navigate('/')
+            navigate('/personalUser')
         } else {
-            console.log('错误')
+            Toast.error('登录失败,请联系管理员')
         }
     }
 

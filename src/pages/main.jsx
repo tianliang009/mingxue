@@ -55,7 +55,7 @@ const Main = () => {
                     <Outlet />
                 </Content>
             </Layout>
-            <Footer style={commonStyle}>© 2023 吉林省格远市场调研咨询有限公司</Footer>
+            <Footer style={commonStyle}>© 2024 SQUIRTLR0120</Footer>
         </Layout>
     );
 };
